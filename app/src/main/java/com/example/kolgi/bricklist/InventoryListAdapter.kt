@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import java.text.SimpleDateFormat
+import java.util.*
 
 class InventoryListAdapter : ArrayAdapter<Inventory> {
 
@@ -21,11 +23,16 @@ class InventoryListAdapter : ArrayAdapter<Inventory> {
 
     }
 
+    fun toSimpleString(date: Date) : String {
+        val format = SimpleDateFormat("yyyy.MM.dd' at' HH:mm:ss")
+        return format.format(date)
+    }
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         var holder: Inventory
         var retView: View
         val name = getItem(position).name
-        val access = getItem(position).lastAccess
+        var access = getItem(position).lastAccess
         val active = getItem(position).active
         val id = getItem(position).id
 
@@ -37,7 +44,7 @@ class InventoryListAdapter : ArrayAdapter<Inventory> {
             val nameText = retView.findViewById<TextView>(R.id.textView1)
             val accessText = retView.findViewById<TextView>(R.id.textView2)
             nameText.setText(name)
-            accessText.setText(access.toString())
+            accessText.setText(toSimpleString(Date(access)))
             retView.tag = holder
         } else {
             holder = convertView.tag as Inventory
@@ -45,7 +52,8 @@ class InventoryListAdapter : ArrayAdapter<Inventory> {
             val nameText = retView.findViewById<TextView>(R.id.textView1)
             val accessText = retView.findViewById<TextView>(R.id.textView2)
             nameText.setText(name)
-            accessText.setText(access.toString())
+
+            accessText.setText(toSimpleString(Date(access)))
         }
         return retView
     }

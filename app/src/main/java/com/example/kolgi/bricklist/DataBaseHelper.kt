@@ -17,7 +17,7 @@ class DataBaseHelper
  * Takes and keeps a reference of the passed context in order to access to the application assets and resources.
  * @param context
  */
-(private val myContext: Context) : SQLiteOpenHelper(myContext, DB_NAME, null, 1) {
+(private val myContext: Context?) : SQLiteOpenHelper(myContext, DB_NAME, null, 1) {
 
     private var myDataBase: SQLiteDatabase? = null
 
@@ -89,7 +89,7 @@ class DataBaseHelper
     private fun copyDataBase() {
 
         //Open your local db as the input stream
-        val myInput = myContext.getAssets().open(DB_NAME)
+        val myInput = myContext!!.getAssets().open(DB_NAME)
 
         // Path to the just created empty db
         val outFileName = DB_PATH + DB_NAME
@@ -187,17 +187,81 @@ class DataBaseHelper
         return id
     }
 
+    fun getItemCode(id: Int): String{
+        val query = "SELECT Code FROM Parts WHERE  _id=$id"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        var code = ""
+        if(cursor.moveToFirst()){
+            code = cursor.getString(0)
+            cursor.close()
+        }
+        return code
+    }
+
+
     fun getColorID(code: String): Int{
-        val query = "SELECT _id FROM Parts WHERE  Code='$code'"
+        val query = "SELECT _id FROM Colors WHERE  Code=$code"
         val db = this.writableDatabase
         val cursor = db.rawQuery(query,null)
         var id = 0
         if(cursor.moveToFirst()){
-            id = Integer.parseInt(cursor.getString(0))
+            id = cursor.getInt(0)
             cursor.close()
         }
         return id
     }
+
+    fun getColorCode(id:Int):Int{
+        val query = "SELECT Code FROM Colors WHERE  _id=$id"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        var code = 0
+        if(cursor.moveToFirst()){
+            code = cursor.getInt(0)
+            cursor.close()
+        }
+        return code
+    }
+
+    fun getColorName(id:Int):String{
+        val query = "SELECT Name FROM Colors WHERE  _id=$id"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        var name = ""
+        if(cursor.moveToFirst()){
+            name = cursor.getString(0)
+            cursor.close()
+        }
+        return name
+    }
+
+    fun getItemTypeName(id:Int):String{
+        val query = "SELECT Name FROM ItemTypes WHERE  _id=$id"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        var name = ""
+        if(cursor.moveToFirst()){
+            name = cursor.getString(0)
+            cursor.close()
+        }
+        return name
+    }
+
+    fun getCategoryName(id:Int):String{
+        val query = "SELECT Name FROM Categories WHERE  _id=$id"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        var name = ""
+        if(cursor.moveToFirst()){
+            name = cursor.getString(0)
+            cursor.close()
+        }
+        return name
+    }
+
+
+
 
     fun insertInventoryPart(part: InventoryPart){
         val values = ContentValues()
@@ -211,6 +275,28 @@ class DataBaseHelper
         val db = this.writableDatabase
         db.insert(TABLE_INVENTORYPARTS,null,values)
         db.close()
+    }
+
+    fun insertImage(code:Int,img:ByteArray?){
+        val values = ContentValues()
+        values.put("Image",img)
+        val db = this.writableDatabase
+        val strFilter = "Code=$code"
+        db.update("Codes",values,strFilter,null)
+        db.close()
+    }
+
+    fun getImage(code:Int): ByteArray?{
+        var img : ByteArray? = null
+        val query = "SELECT Image FROM Codes WHERE  Code=$code"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        if(cursor.moveToFirst()){
+            img = cursor.getBlob(0)
+            cursor.close()
+        }
+        if(img==null)return null
+        return img
     }
 
     fun getInventories() : MutableList<Inventory>{
@@ -228,7 +314,69 @@ class DataBaseHelper
         }
         cursor.close()
         return inventories
+    }
 
+    fun increaseQuantity(id:Int,currentQuantity:Int){
+        val values = ContentValues()
+        values.put("QuantityInStore",currentQuantity+1)
+        val db = this.writableDatabase
+        val strFilter = "_id=$id"
+        db.update("InventoriesParts",values,strFilter,null)
+        db.close()
+    }
+
+    fun decreaseQuantity(id:Int,currentQuantity:Int){
+        val values = ContentValues()
+        values.put("QuantityInStore",currentQuantity-1)
+        val db = this.writableDatabase
+        val strFilter = "_id=$id"
+        db.update("InventoriesParts",values,strFilter,null)
+        db.close()
+    }
+
+    fun getInvetoryParts(invID : Int) : MutableList<InventoryPart>{
+        var parts = mutableListOf<InventoryPart>()
+        val query = "SELECT * FROM InventoriesParts WHERE InventoryID=$invID"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        while(cursor.moveToNext()){
+            val id = cursor.getInt(0)
+            val inventoryID = cursor.getInt(1)
+            val typeID = cursor.getInt(2)
+            val itemID = cursor.getInt(3)
+            val qInSet = cursor.getInt(4)
+            val qInStore = cursor.getInt(5)
+            val colorID = cursor.getInt(6)
+            val extras = cursor.getInt(7)
+            val part = InventoryPart(id,inventoryID,typeID,itemID,qInSet,qInStore,colorID,extras)
+            parts.add(part)
+        }
+        cursor.close()
+        return parts
+    }
+
+    fun getImageCode(itemID:Int,colorID:Int):Int{
+        val query = "SELECT Code FROM Codes WHERE ItemID=$itemID AND ColorID=$colorID"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        var code = 0
+        if(cursor.moveToFirst()){
+            code =cursor.getInt(0)
+            cursor.close()
+        }
+        return code
+    }
+
+    fun getPartName(partID:Int):String{
+        val query = "SELECT Name FROM Parts WHERE _id=$partID"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        var name = ""
+        if(cursor.moveToFirst()){
+            name =cursor.getString(0)
+            cursor.close()
+        }
+        return name
     }
 
 

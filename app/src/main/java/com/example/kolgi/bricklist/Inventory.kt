@@ -1,6 +1,6 @@
 package com.example.kolgi.bricklist
 
-class Inventory {
+class Inventory : Comparable<Inventory>{
     var id: Int = 0
     var name: String = ""
     var active: Int = 1
@@ -19,4 +19,11 @@ class Inventory {
         this.active=active
         this.lastAccess=lastAccess
     }
+
+    override fun compareTo(other: Inventory): Int {
+        return this.lastAccess.compareTo(other.lastAccess)
+    }
+
+
+
 }

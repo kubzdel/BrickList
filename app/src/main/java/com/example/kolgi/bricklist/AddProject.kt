@@ -12,10 +12,6 @@ import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.xml.parsers.DocumentBuilderFactory
-import java.lang.reflect.Array.getLength
-
-
-
 
 
 class AddProject : AppCompatActivity() {
@@ -101,8 +97,10 @@ class AddProject : AppCompatActivity() {
                 val quantityNeeded = eElement.getElementsByTagName("QTY").item(0).textContent.toInt()
                 val itemID = DBHepler.getItemID(eElement.getElementsByTagName("ITEMID").item(0).textContent)
                 val colorID = DBHepler.getColorID(eElement.getElementsByTagName("COLOR").item(0).textContent)
-                val extras = eElement.getElementsByTagName("EXTRA").item(0).textContent
-                val part = InventoryPart(inventoryID,itemTypeID,itemID,quantityNeeded,colorID,extras)
+                val extrasLetter = eElement.getElementsByTagName("EXTRA").item(0).textContent.toString()
+                    var extras = 0
+                    if(extrasLetter!="N") extras = 1
+                val part = InventoryPart(inventoryID,itemTypeID,itemID,quantityNeeded,0,colorID,extras)
                 DBHepler.insertInventoryPart(part)
                 }
             }
