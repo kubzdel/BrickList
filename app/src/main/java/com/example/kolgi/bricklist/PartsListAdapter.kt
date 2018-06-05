@@ -2,9 +2,6 @@ package com.example.kolgi.bricklist
 
 import android.content.Context
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import java.io.BufferedInputStream
@@ -17,8 +14,16 @@ import java.util.*
 import android.util.DisplayMetrics
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
-import android.view.WindowManager
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.graphics.drawable.PaintDrawable
+import android.text.method.ScrollingMovementMethod
+import android.view.*
+import android.view.MotionEvent
+
+
 
 
 class PartsListAdapter : ArrayAdapter<InventoryPart> {
@@ -41,11 +46,11 @@ class PartsListAdapter : ArrayAdapter<InventoryPart> {
         val DBHelper = DataBaseHelper(this.context)
         var holder: InventoryPart
         var retView: View
-        val InventoryPart = getItem(position)
+        val inventoryPart = getItem(position)
         var name :String
         var description : String
         var category : String
-        if(InventoryPart.itemID!=0) {
+        if(inventoryPart.itemID!=0) {
              name = DBHelper.getItemCode(getItem(position).itemID)
             //  var image = getItem(position).
              description = DBHelper.getColorName(getItem(position).colorID) + " " +
@@ -61,7 +66,7 @@ class PartsListAdapter : ArrayAdapter<InventoryPart> {
             category = ""
         }
 
-        holder = InventoryPart(0,getItem(position).inventoryID,getItem(position).typeID,
+        holder = InventoryPart(getItem(position).id,getItem(position).inventoryID,getItem(position).typeID,
                 getItem(position).itemID,getItem(position).quantityInSet,getItem(position).quantityInStore,
                 getItem(position).colorID,getItem(position).extra)
         if (convertView == null) {
@@ -74,12 +79,42 @@ class PartsListAdapter : ArrayAdapter<InventoryPart> {
             val qSetView = retView.findViewById<TextView>(R.id.quantitySet)
             val descView = retView.findViewById<TextView>(R.id.textViewDescription)
             val categoryView = retView.findViewById<TextView>(R.id.textViewCategory)
+            val row = retView.findViewById<LinearLayout>(R.id.row)
+            qStoredView.setText(inventoryPart.quantityInStore.toString())
+            qSetView.setText(inventoryPart.quantityInSet.toString())
+            if(inventoryPart.quantityInStore>=inventoryPart.quantityInSet)
+                row.setBackgroundColor(Color.GREEN)
+            else{
+                row.setBackgroundColor(Color.TRANSPARENT)
+            }
+
+            if(getItemId(position)==Singleton.selected){
+                row.setBackgroundColor(Color.YELLOW)
+            }
             nameText.setText(name)
-            qStoredView.setText(InventoryPart.quantityInStore.toString())
-            qSetView.setText(InventoryPart.quantityInSet.toString())
             descView.setText(description)
+            descView.setGravity(Gravity.CENTER)
+            descView.setMovementMethod(ScrollingMovementMethod())
+            descView.scrollTo(0,0)
+            descView.setOnTouchListener { v, event ->
+                if(descView.lineCount>3){
+                val action = event.action
+
+                when (action) {
+                    MotionEvent.ACTION_DOWN ->
+                        // Disallow ScrollView to intercept touch events.
+                        v.parent
+                                .requestDisallowInterceptTouchEvent(true)
+                    MotionEvent.ACTION_UP ->
+                        // Allow ScrollView to intercept touch events.
+                        v.parent
+                                .requestDisallowInterceptTouchEvent(false)
+                }}
+               // descView.scrollTo(0,0)
+                return@setOnTouchListener false
+            }
             categoryView.setText(category)
-            if(InventoryPart.itemID!=0){
+            if(inventoryPart.itemID!=0){
             val image = getAndSaveImage(holder.itemID,holder.colorID,name)
             val bm = BitmapFactory.decodeByteArray(image, 0, image!!.size)
             val dm = DisplayMetrics()
@@ -96,26 +131,45 @@ class PartsListAdapter : ArrayAdapter<InventoryPart> {
             val qSetView = retView.findViewById<TextView>(R.id.quantitySet)
             val descView = retView.findViewById<TextView>(R.id.textViewDescription)
             val categoryView = retView.findViewById<TextView>(R.id.textViewCategory)
+            val row = retView.findViewById<LinearLayout>(R.id.row)
             nameText.setText(name)
-            qStoredView.setText(InventoryPart.quantityInStore.toString())
-            qSetView.setText(InventoryPart.quantityInSet.toString())
+            qStoredView.setText(inventoryPart.quantityInStore.toString())
+            qSetView.setText(inventoryPart.quantityInSet.toString())
+            if(inventoryPart.quantityInStore>=inventoryPart.quantityInSet)
+                row.setBackgroundColor(Color.GREEN)
+            else{
+                row.setBackgroundColor(Color.TRANSPARENT)
+            }
+
+            if(getItemId(position)==Singleton.selected){
+                row.setBackgroundColor(Color.YELLOW)
+            }
             descView.setText(description)
+            descView.setGravity(Gravity.CENTER)
+//            descView.setMovementMethod(ScrollingMovementMethod())
+//            descView.setOnTouchListener { v, event ->
+//                descView.setGravity(Gravity.CENTER)
+//                //  if (descView.lineCount>3){
+//                v.getParent().requestDisallowInterceptTouchEvent(true);
+//                return@setOnTouchListener false;
+//            }
+            descView.scrollTo(0,0)
             categoryView.setText(category)
-            if(InventoryPart.itemID!=0){
-                val image = getAndSaveImage(holder.itemID,holder.colorID,name)
+            if(inventoryPart.itemID!=0){
+                val image = getAndSaveImage(inventoryPart.itemID,inventoryPart.colorID,name)
                 val bm = BitmapFactory.decodeByteArray(image, 0, image!!.size)
                 val dm = DisplayMetrics()
                 imageView.setMinimumHeight(dm.heightPixels)
                 imageView.setMinimumWidth(dm.widthPixels)
                 imageView.setImageBitmap(bm)}
-           // retView.tag = holder
+
         }
         return retView
     }
 
     fun getAndSaveImage(itemID: Int, colorID: Int, partCode: String):ByteArray? {
         val DBHelper = DataBaseHelper(mContext)
-        val code = DBHelper.getImageCode(itemID, colorID)
+        var code = DBHelper.getImageCode(itemID, colorID)
         var photo = DBHelper.getImage(code)
         val colorCode = DBHelper.getColorCode(colorID)
         if(photo==null) {
@@ -133,20 +187,23 @@ class PartsListAdapter : ArrayAdapter<InventoryPart> {
                             imageURL = URL(url3 + partCode + ".jpg")
                             connection = imageURL.openConnection() as HttpURLConnection
                             connection.connect()
-                            if (connection.responseCode != HttpURLConnection.HTTP_OK) println("chuj")
+                            if (connection.responseCode != HttpURLConnection.HTTP_OK)
+                                    else{
+                                code = itemID+ colorID*10
+                                DBHelper.insertCode(itemID,colorID,code)
+                            }
+                        }
+                        else{
+                            code = itemID+ colorID*10
+                            DBHelper.insertCode(itemID,colorID,code)
                         }
                     }
 
                     val inputStream = connection.inputStream
-                    System.out.println("12121");
-
                     val bis = BufferedInputStream(inputStream)
-                    System.out.println("22222");
-
                     var baf = ByteArrayOutputStream();
                     var current = 0;
                     val data = ByteArray(50)
-                    System.out.println("23333");
                     current = bis.read(data)
                     while (current != -1) {
                         baf.write(data, 0, current)
@@ -161,15 +218,8 @@ class PartsListAdapter : ArrayAdapter<InventoryPart> {
             thread.start()
             thread.join()
         }
-        else{
-            println("już jest")
-        }
         return photo
-
     }
-
-
-
 }
 
 

@@ -14,16 +14,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:label="BrickList">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddProject" />
-        <activity android:name=".EditProject" />
-        <activity android:name=".Settings"></activity>
+        <activity android:name=".AddProject"
+            android:label="Dodaj projekt"/>
+        <activity android:name=".EditProject"
+            android:label="Zarządzaj projektem"/>
+        <activity android:name=".Settings"
+            android:label="Ustawienia"/>
     </application>
 
 </manifest>

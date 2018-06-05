@@ -9,6 +9,7 @@ class InventoryPart:Comparable<InventoryPart> {
     var quantityInSet: Int = 0
     var colorID: Int = 0
     var extra: Int = 0
+    var isSelected : Boolean = false
 
     constructor(id: Int, inventoryID: Int, typeID: Int, itemID: Int,  quantityInSet: Int,quantityInStore: Int, colorID: Int, extra: Int) {
         this.id = id

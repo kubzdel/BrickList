@@ -199,6 +199,31 @@ class DataBaseHelper
         return code
     }
 
+    fun getInventoryName(id: Int): String{
+        val query = "SELECT Name FROM Inventories WHERE  _id=$id"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        var name = ""
+        if(cursor.moveToFirst()){
+            name = cursor.getString(0)
+            cursor.close()
+        }
+        return name
+    }
+
+    fun getItemTypeCode(id: Int): String{
+        val query = "SELECT Code FROM ItemTypes WHERE  _id=$id"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        var name = ""
+        if(cursor.moveToFirst()){
+            name = cursor.getString(0)
+            cursor.close()
+        }
+        return name
+    }
+
+
 
     fun getColorID(code: String): Int{
         val query = "SELECT _id FROM Colors WHERE  Code=$code"
@@ -260,6 +285,24 @@ class DataBaseHelper
         return name
     }
 
+    fun setInvActive(id:Int){
+        val values = ContentValues()
+        values.put("Active",1)
+        val db = this.writableDatabase
+        val strFilter = "_id=$id"
+        db.update("Inventories",values,strFilter,null)
+        db.close()
+    }
+
+    fun setInvInactive(id:Int){
+        val values = ContentValues()
+        values.put("Active",0)
+        val db = this.writableDatabase
+        val strFilter = "_id=$id"
+        db.update("Inventories",values,strFilter,null)
+        db.close()
+    }
+
 
 
 
@@ -286,6 +329,39 @@ class DataBaseHelper
         db.close()
     }
 
+    fun updateLastAccess(id:Int,time:Long){
+        val values = ContentValues()
+        values.put(COLUMN_INVENTORYACCESS,time)
+        val db = this.writableDatabase
+        val strFilter = "_id=$id"
+        db.update(TABLE_INVENTORIES,values,strFilter,null)
+        db.close()
+    }
+
+    fun insertCode(itemID:Int,colorID:Int,code:Int){
+        val values = ContentValues()
+        values.put("ItemID",itemID)
+        values.put("ColorID",colorID)
+        values.put("Code",code)
+        val db = this.writableDatabase
+        db.insert("Codes",null,values)
+        db.close()
+
+    }
+
+    fun getActiveIDs() : MutableList<Int>{
+        var IDs = mutableListOf<Int>()
+        val query = "SELECT _id FROM Inventories where Active=1"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        while(cursor.moveToNext()){
+            val id = cursor.getInt(0)
+            IDs.add(id)
+        }
+        cursor.close()
+        return IDs
+    }
+
     fun getImage(code:Int): ByteArray?{
         var img : ByteArray? = null
         val query = "SELECT Image FROM Codes WHERE  Code=$code"
@@ -300,6 +376,23 @@ class DataBaseHelper
     }
 
     fun getInventories() : MutableList<Inventory>{
+        var inventories = mutableListOf<Inventory>()
+        val query = "SELECT * FROM Inventories"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query,null)
+        while(cursor.moveToNext()){
+            val name  = cursor.getString(1)
+            val access = cursor.getLong(3)
+            val id = cursor.getInt(0)
+            val active = cursor.getInt(2)
+            val inv  = Inventory(id,name,active,access)
+            inventories.add(inv)
+        }
+        cursor.close()
+        return inventories
+    }
+
+    fun getActiveInventories() : MutableList<Inventory>{
         var inventories = mutableListOf<Inventory>()
         val query = "SELECT * FROM Inventories WHERE Active=1"
         val db = this.writableDatabase

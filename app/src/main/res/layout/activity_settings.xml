@@ -28,4 +28,12 @@
         app:layout_constraintBottom_toTopOf="@+id/textViewUrl"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <CheckBox
+        android:id="@+id/active_only_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wyświetlaj tylko aktywne projekty"
+        tools:layout_editor_absoluteX="72dp"
+        tools:layout_editor_absoluteY="353dp" />
 </android.support.constraint.ConstraintLayout>

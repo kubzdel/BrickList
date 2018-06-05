@@ -3,7 +3,9 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:weightSum="100">
+    android:background="#BCE1B6"
+    android:weightSum="100"
+    android:id="@+id/row">
 
 
     <LinearLayout
@@ -11,12 +13,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="60"
-        android:weightSum="100">
+        android:weightSum="100"
+        >
 
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="80dp"
             android:layout_weight="50"
             android:gravity="center"
             android:textAlignment="center" />
@@ -24,7 +27,7 @@
         <TextView
             android:id="@+id/textViewName"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="80dp"
             android:layout_weight="50"
             android:gravity="center"
             android:text="imageView"
@@ -39,6 +42,7 @@
         android:layout_weight="40"
         android:weightSum="100">
     <LinearLayout
+        android:descendantFocusability="blocksDescendants"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -47,15 +51,17 @@
         <TextView
             android:gravity="center"
             android:text="TextView2"
+            android:maxLines = "3"
+            android:scrollbars = "vertical"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="60dp"
             android:id="@+id/textViewDescription"/>
 
         <TextView
             android:gravity="center"
             android:text="TextView3"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="20dp"
             android:id="@+id/textViewCategory"/>
     </LinearLayout>
 
@@ -69,7 +75,7 @@
             <TextView
                 android:id="@+id/quantityStored"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="80dp"
                 android:layout_weight="50"
                 android:gravity="center"
                 android:text="qStored"
@@ -78,7 +84,7 @@
             <TextView
                 android:id="@+id/quantitySet"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="80dp"
                 android:layout_weight="50"
                 android:gravity="center"
                 android:text="qSet"
