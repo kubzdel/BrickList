@@ -132,6 +132,7 @@ class PartsListAdapter : ArrayAdapter<InventoryPart> {
             val descView = retView.findViewById<TextView>(R.id.textViewDescription)
             val categoryView = retView.findViewById<TextView>(R.id.textViewCategory)
             val row = retView.findViewById<LinearLayout>(R.id.row)
+         //   row.setBackgroundColor(Color.argb(221,255,255,255))
             nameText.setText(name)
             qStoredView.setText(inventoryPart.quantityInStore.toString())
             qSetView.setText(inventoryPart.quantityInSet.toString())

@@ -1,21 +1,29 @@
 package com.example.kolgi.bricklist
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.provider.AlarmClock.EXTRA_MESSAGE
+import android.support.annotation.RequiresApi
+import android.support.v4.content.ContextCompat
 import android.view.View
 import android.widget.AdapterView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_edit_project.*
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.inventory_view_layout.view.*
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import java.io.File
+import java.lang.Thread.sleep
 import java.util.*
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
@@ -27,7 +35,6 @@ import javax.xml.transform.stream.StreamResult
 
 class EditProject : AppCompatActivity() {
 
-    val XML_PATH = "/data/data/com.example.kolgi.bricklist/"
     var invID = 0
     var title =  ""
     var selected : Int? = null
@@ -42,6 +49,8 @@ class EditProject : AppCompatActivity() {
         val message = extras.getInt(EXTRA_MESSAGE+'1')
         val title = extras.getString(EXTRA_MESSAGE+'2')
         invID = message
+      //  listViewParts.setBackgroundColor(Color.rgb(
+      //          188, 225, 182))
         DBHelper!!.updateLastAccess(invID,System.currentTimeMillis())
         this.title = title
         prepareList()
@@ -101,6 +110,7 @@ class EditProject : AppCompatActivity() {
         DBHelper!!.updateLastAccess(invID,System.currentTimeMillis())
         super.finish()
     }
+    @RequiresApi(Build.VERSION_CODES.M)
     fun exportInsufficientParts(v: View) {
         val invName = DBHelper!!.getInventoryName(this.invID)
         try{
@@ -133,14 +143,11 @@ class EditProject : AppCompatActivity() {
 
             transformer.setOutputProperty(OutputKeys.INDENT, "yes")
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
-
-            val path = this.XML_PATH
-            val outDir = File(path, "MissingParts")
-            outDir.mkdir()
-            val file = File(outDir, "$invName.xml")
-
+            val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            requestPermissions(permissions, 69);
+            val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "$invName.xml")
             transformer.transform(DOMSource(doc), StreamResult(file))
-        val toast = Toast.makeText(applicationContext, "Pomyślnie wyeksportowano plik xml o nazwie $invName", Toast.LENGTH_SHORT)
+        val toast = Toast.makeText(applicationContext, "Pomyślnie wyeksportowano plik xml o nazwie $invName.xml", Toast.LENGTH_SHORT)
         toast.show()}
         catch(e:Exception){
             val toast = Toast.makeText(applicationContext,e.message, Toast.LENGTH_SHORT)
@@ -148,4 +155,18 @@ class EditProject : AppCompatActivity() {
         }
         }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode==69) {
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                //Granted.
+            }
+            else{
+                //Denied.
+            }
+        }
+    }
+
+
 }
+
+
